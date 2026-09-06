@@ -342,9 +342,11 @@
     .参数 字节集指针, 整数型, , 
     .参数 数据长度, 整数型, , 
 
-.DLL命令 CoInitializeEx, , "ole32.dll", "CoInitializeEx", , 
+.DLL命令 CoInitializeEx, 整数型, "ole32.dll", "CoInitializeEx", , 
     .参数 pvReserved, 整数型, , 
     .参数 param, 整数型, , 
+
+.DLL命令 CoUninitialize, , "ole32.dll", "CoUninitialize", , 
 
 .DLL命令 CreatePopupMenu, 整数型, "user32.dll", "CreatePopupMenu", , 
 
