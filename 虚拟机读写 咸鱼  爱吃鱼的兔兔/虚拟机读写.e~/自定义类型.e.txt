@@ -1,0 +1,54 @@
+﻿.版本 2
+
+.数据类型 STARTUPINFO, , 
+    .成员 cb, 整数型, , , 
+    .成员 lpReserved, 整数型, , , 
+    .成员 lpDesktop, 整数型, , , 
+    .成员 lpTitle, 整数型, , , 
+    .成员 dwX, 整数型, , , 
+    .成员 dwY, 整数型, , , 
+    .成员 dwXSize, 整数型, , , 
+    .成员 dwYSize, 整数型, , , 
+    .成员 dwXCountChars, 整数型, , , 
+    .成员 dwYCountChars, 整数型, , , 
+    .成员 dwFillAttribute, 整数型, , , 
+    .成员 dwFlags, 整数型, , , 
+    .成员 wShowWindow, 短整数型, , , 
+    .成员 cbReserved2, 短整数型, , , 
+    .成员 lpReserved2, 整数型, , , 
+    .成员 hStdInput, 整数型, , , 
+    .成员 hStdOutput, 整数型, , , 
+    .成员 hStdError, 整数型, , , 
+    .成员 lpAttributeList, 整数型, , , STARTUPINFOEX
+
+
+.数据类型 精易_进程结构, , 
+    .成员 进程句柄, 整数型, , , hProcess
+    .成员 线程句柄, 整数型, , , hThread
+    .成员 进程标识符, 整数型, , , dwProcessId
+    .成员 线程标识符, 整数型, , , dwThreadId
+
+
+.数据类型 VMM函数入口, , 
+    .成员 VMMDLL_Initialize, 长整数型, , , 
+    .成员 VMMDLL_CloseAll, 长整数型, , , 
+    .成员 VMMDLL_PidGetFromName, 长整数型, , , 
+    .成员 VMMDLL_ProcessGetModuleBaseU, 长整数型, , , 
+    .成员 VMMDLL_Scatter_Initialize, 长整数型, , , 
+    .成员 VMMDLL_Scatter_Prepare, 长整数型, , , 
+    .成员 VMMDLL_Scatter_ExecuteRead, 长整数型, , , 
+    .成员 VMMDLL_Scatter_CloseHandle, 长整数型, , , 
+    .成员 VMMDLL_Scatter_Clear, 长整数型, , , 
+    .成员 VMMDLL_Scatter_Read, 长整数型, , , 
+    .成员 VMMDLL_PidList, 长整数型, , , 
+    .成员 VMMDLL_ProcessGetInformation, 长整数型, , , 
+    .成员 VMMDLL_ConfigSet, 长整数型, , , 
+    .成员 VMMDLL_MemReadEx, 长整数型, , , 
+    .成员 VMMDLL_ProcessGetModuleBaseU, 长整数型, , , 
+    .成员 VMMDLL_MemWrite, 长整数型, , , 
+
+
+.数据类型 程序延时, , 
+    .成员 成员_时间, 长整数型, , , 占用8个字节
+
+

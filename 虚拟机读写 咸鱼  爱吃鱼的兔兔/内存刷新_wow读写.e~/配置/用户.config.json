@@ -1,0 +1,24 @@
+﻿{
+    "Address": "",
+    "Author": "DMA虚拟机读写",
+    "BuilderVersion": {
+        "Major": 4,
+        "Minor": 23
+    },
+    "CompilePlugins": "",
+    "Copyright": "自用程序，请勿使用于非法项目",
+    "DebugCommandParameters": "",
+    "Description": "自用\r\n@备注:\r\n自用",
+    "Email": "",
+    "ExportPublicClassMethod": false,
+    "FaxNumber": "",
+    "Homepage": "",
+    "Name": "DMA虚拟机读写",
+    "ReleaseVersion": {
+        "Major": 1,
+        "Minor": 2
+    },
+    "TelephoneNumber": "",
+    "WriteVersion": true,
+    "ZipCode": ""
+}
