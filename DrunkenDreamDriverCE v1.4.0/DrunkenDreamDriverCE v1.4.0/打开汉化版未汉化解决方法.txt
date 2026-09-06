@@ -1,0 +1,2 @@
+打开汉化版CE
+左上角  Edit-> Settings -> languages -> 选择中文包（zh_CN）即可

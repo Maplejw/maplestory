@@ -1,0 +1,671 @@
+<?xml version='1.0' encoding='utf-8'?>
+<CheatTable CheatEngineTableVersion="42">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>42000</ID>
+      <Description>[主脚本] 激活后安全空闲；再把“开始/重新运行”改为1</Description>
+      <Options moHideChildren="1" />
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+local pathFile=[[C:\Users\ceshi\Desktop\yhc-5.0\测谎\UIAntiMacro_Path.bin]]
+local tries=0
+local t=createTimer(nil,false)
+t.Interval=100
+t.OnTimer=function(timer)
+  tries=tries+1
+  local base=getAddressSafe('AMUnifiedFlow')
+  local dst=base and (base+0x8000) or nil
+  local loaded=base and (base+0x4078) or nil
+  if dst and loaded then
+    local f=io.open(pathFile,'rb')
+    if f then
+      local s=f:read('*a')
+      f:close()
+      if s and #s==0x14A0 then
+        local pos=1
+        while pos&lt;=#s do
+          local last=math.min(pos+511,#s)
+          local bytes={s:byte(pos,last)}
+          writeBytes(dst+pos-1,bytes)
+          pos=last+1
+        end
+        writeBytes(loaded,1)
+      end
+    end
+    timer.destroy()
+  elseif tries&gt;=100 then
+    timer.destroy()
+  end
+end
+t.Enabled=true
+{$asm}
+assert(GameAssembly.dll+DEDCD0,41 56 56 57 53 48 81 EC 98 03 00 00)
+assert(GameAssembly.dll+944180,41 56 56 57 53)
+assert(GameAssembly.dll+937D70,56 57 53 48 83 EC 50)
+assert(GameAssembly.dll+93A830,56 57 48 83 EC 68)
+assert(GameAssembly.dll+946440,56 57 48 81 EC 88 00 00 00)
+assert(GameAssembly.dll+9467A0,56 57 48 83 EC 78)
+alloc(AMUnifiedFlow,65536,GameAssembly.dll+DEDCD0)
+define(AMFE_Main,AMUnifiedFlow)
+define(AMFE_Create,AMUnifiedFlow+1000)
+define(AMFE_Compare,AMUnifiedFlow+2000)
+define(AMFE_Done,AMUnifiedFlow+2F00)
+define(AMFE_Mouse,AMUnifiedFlow+3000)
+define(AMFE_MouseOriginal,AMUnifiedFlow+3800)
+define(AMFE_State,AMUnifiedFlow+4000)
+define(AMFE_Armed,AMUnifiedFlow+4004)
+define(AMFE_AutoEnabled,AMUnifiedFlow+4005)
+define(AMFE_Active,AMUnifiedFlow+4006)
+define(AMFE_LocalMode,AMUnifiedFlow+4007)
+define(AMFE_Result,AMUnifiedFlow+4008)
+define(AMFE_CalibratedAt,AMUnifiedFlow+400C)
+define(AMFE_Good,AMUnifiedFlow+4010)
+define(AMFE_Total,AMUnifiedFlow+4014)
+define(AMFE_OriginX,AMUnifiedFlow+4018)
+define(AMFE_OriginY,AMUnifiedFlow+401C)
+define(AMFE_FollowCount,AMUnifiedFlow+4020)
+define(AMFE_Instance,AMUnifiedFlow+4028)
+define(AMFE_LocalChallenge,AMUnifiedFlow+4030)
+define(AMFE_Challenge,AMUnifiedFlow+4038)
+define(AMFE_List,AMUnifiedFlow+4040)
+define(AMFE_Array,AMUnifiedFlow+4048)
+define(AMFE_ChallengeHandle,AMUnifiedFlow+4050)
+define(AMFE_ListHandle,AMUnifiedFlow+4054)
+define(AMFE_ArrayHandle,AMUnifiedFlow+4058)
+define(AMFE_Stage,AMUnifiedFlow+405C)
+define(AMFE_Scale,AMUnifiedFlow+4060)
+define(AMFE_OffsetX,AMUnifiedFlow+4064)
+define(AMFE_OffsetY,AMUnifiedFlow+4068)
+define(AMFE_FlowStart,AMUnifiedFlow+406C)
+define(AMFE_GuideInstance,AMUnifiedFlow+4070)
+define(AMFE_PathLoaded,AMUnifiedFlow+4078)
+define(AMFE_MainStub,AMUnifiedFlow+5000)
+define(AMFE_Path,AMUnifiedFlow+8000)
+
+AMFE_Main:
+  pushfq
+  push rax
+  push rcx
+  push rdx
+  push rbx
+  push rsi
+  push rdi
+  push r8
+  push r9
+  push r10
+  push r11
+  sub rsp,80
+  movdqu [rsp+20],xmm0
+  movdqu [rsp+30],xmm1
+  movdqu [rsp+40],xmm2
+  movdqu [rsp+50],xmm3
+  movdqu [rsp+60],xmm4
+  movdqu [rsp+70],xmm5
+  cmp byte ptr [AMFE_FlowStart],1
+  je AMFE_ShowGuide
+  cmp dword ptr [AMFE_State],A
+  je AMFE_WaitGuide
+  cmp byte ptr [AMFE_Armed],1
+  je AMFE_Create
+  jmp AMFE_Compare
+
+AMFE_ShowGuide:
+  cmp byte ptr [AMFE_PathLoaded],1
+  jne AMFE_Done
+  mov byte ptr [AMFE_FlowStart],0
+  mov byte ptr [AMFE_Armed],0
+  mov byte ptr [AMFE_Active],0
+  mov byte ptr [AMFE_LocalMode],0
+  mov byte ptr [AMFE_Result],FF
+  mov dword ptr [AMFE_State],FFFFFFFF
+  mov dword ptr [AMFE_Stage],A
+  mov ecx,1770
+  xor edx,edx
+  mov rax,GameAssembly.dll+937D70
+  call rax
+  mov [AMFE_GuideInstance],rax
+  test rax,rax
+  je AMFE_Done
+  mov dword ptr [AMFE_State],A
+  jmp AMFE_Done
+
+AMFE_WaitGuide:
+  xor ecx,ecx
+  xor edx,edx
+  mov rax,GameAssembly.dll+938130
+  call rax
+  test al,al
+  jne AMFE_Done
+  mov dword ptr [AMFE_State],0
+  mov byte ptr [AMFE_Armed],1
+  mov dword ptr [AMFE_Stage],B
+  jmp AMFE_Done
+
+AMFE_Create:
+  mov byte ptr [AMFE_Armed],0
+  mov byte ptr [AMFE_Active],0
+  mov byte ptr [AMFE_LocalMode],0
+  mov byte ptr [AMFE_Result],FF
+  mov dword ptr [AMFE_CalibratedAt],0
+  mov dword ptr [AMFE_Good],0
+  mov dword ptr [AMFE_Total],0
+  mov qword ptr [AMFE_FollowCount],0
+  mov dword ptr [AMFE_State],FFFFFFFF
+  mov dword ptr [AMFE_Stage],1
+  xor ecx,ecx
+  xor edx,edx
+  mov rax,GameAssembly.dll+93B670
+  call rax
+  test al,al
+  je @f
+  mov dword ptr [AMFE_State],5
+  jmp AMFE_Done
+@@:
+  mov rcx,GameAssembly.dll+6938858
+  mov rax,GameAssembly.dll+38F260
+  call rax
+  mov rcx,GameAssembly.dll+69333B0
+  mov rax,GameAssembly.dll+38F260
+  call rax
+  mov rcx,GameAssembly.dll+693E948
+  mov rax,GameAssembly.dll+38F260
+  call rax
+  mov dword ptr [AMFE_Stage],2
+  mov rax,GameAssembly.dll+6938858
+  mov rcx,[rax]
+  mov rax,il2cpp_object_new
+  call rax
+  test rax,rax
+  jne @f
+  jmp AMFE_Done
+@@:
+  mov [AMFE_Challenge],rax
+  mov rcx,rax
+  xor edx,edx
+  mov rax,il2cpp_gchandle_new
+  call rax
+  mov dword ptr [AMFE_ChallengeHandle],eax
+  test eax,eax
+  jne @f
+  jmp AMFE_Done
+@@:
+  mov rax,GameAssembly.dll+69333B0
+  mov rcx,[rax]
+  mov rax,il2cpp_object_new
+  call rax
+  test rax,rax
+  jne @f
+  jmp AMFE_Done
+@@:
+  mov [AMFE_List],rax
+  mov rcx,rax
+  xor edx,edx
+  mov rax,il2cpp_gchandle_new
+  call rax
+  mov dword ptr [AMFE_ListHandle],eax
+  test eax,eax
+  jne @f
+  jmp AMFE_Done
+@@:
+  mov rax,GameAssembly.dll+693E948
+  mov rcx,[rax]
+  mov edx,14A
+  mov rax,il2cpp_array_new
+  call rax
+  test rax,rax
+  jne @f
+  jmp AMFE_Done
+@@:
+  mov [AMFE_Array],rax
+  mov rcx,rax
+  xor edx,edx
+  mov rax,il2cpp_gchandle_new
+  call rax
+  mov dword ptr [AMFE_ArrayHandle],eax
+  test eax,eax
+  jne @f
+  jmp AMFE_Done
+@@:
+  mov rax,[AMFE_Array]
+  lea rsi,[AMFE_Path]
+  lea rdi,[rax+20]
+  mov ecx,294
+  cld
+  rep movsq
+  mov rbx,[AMFE_List]
+  mov r8,[AMFE_Array]
+  mov rcx,rbx
+  lea rdx,[rbx+10]
+  mov rax,il2cpp_gc_wbarrier_set_field
+  call rax
+  mov dword ptr [rbx+18],14A
+  mov dword ptr [rbx+1C],14A
+  mov rbx,[AMFE_Challenge]
+  mov dword ptr [rbx+10],1
+  mov dword ptr [rbx+14],0
+  mov dword ptr [rbx+18],0
+  mov r8,[AMFE_List]
+  mov rcx,rbx
+  lea rdx,[rbx+20]
+  mov rax,il2cpp_gc_wbarrier_set_field
+  call rax
+  mov rcx,GameAssembly.dll+6939108
+  mov rax,GameAssembly.dll+38F260
+  call rax
+  mov rax,GameAssembly.dll+6939108
+  mov rcx,[rax]
+  mov rax,GameAssembly.dll+38F570
+  call rax
+  mov rcx,[AMFE_Challenge]
+  xor edx,edx
+  mov rax,GameAssembly.dll+93A830
+  call rax
+  mov [AMFE_Instance],rax
+  test rax,rax
+  jne @f
+  jmp AMFE_Done
+@@:
+  mov rdx,[rax+E0]
+  mov [AMFE_LocalChallenge],rdx
+  mov byte ptr [AMFE_LocalMode],1
+  mov dword ptr [AMFE_State],1
+  mov dword ptr [AMFE_Stage],12
+  jmp AMFE_Done
+
+AMFE_Compare:
+  cmp dword ptr [AMFE_State],1
+  jne AMFE_Done
+  cmp byte ptr [AMFE_LocalMode],1
+  jne AMFE_Done
+  mov rbx,[AMFE_Instance]
+  test rbx,rbx
+  je AMFE_Done
+  mov rax,[rbx+E0]
+  cmp rax,[AMFE_LocalChallenge]
+  jne AMFE_Done
+  cmp byte ptr [rbx+100],0
+  jne AMFE_Done
+  mov rsi,[rbx+F0]
+  mov rdi,[rbx+F8]
+  test rsi,rsi
+  je AMFE_Done
+  test rdi,rdi
+  je AMFE_Done
+  cmp dword ptr [rdi+18],14A
+  jb AMFE_Done
+  mov r8,[rsi+10]
+  mov r9,[rdi+10]
+  test r8,r8
+  je AMFE_Done
+  test r9,r9
+  je AMFE_Done
+  mov ecx,[AMFE_CalibratedAt]
+  cmp ecx,0
+  jge @f
+  xor ecx,ecx
+@@:
+  cmp ecx,14A
+  jb @f
+  xor ecx,ecx
+@@:
+  mov r11d,14A
+  sub r11d,ecx
+  xor r10d,r10d
+AMFE_CompareLoop:
+  cmp ecx,14A
+  jae AMFE_CompareFinish
+  movss xmm0,[r8+rcx*8+20]
+  movss xmm1,[r8+rcx*8+24]
+  mulss xmm0,[AMFE_Scale]
+  mulss xmm1,[AMFE_Scale]
+  addss xmm0,[AMFE_OffsetX]
+  addss xmm1,[AMFE_OffsetY]
+  cvtss2si eax,xmm0
+  mov edx,[r9+rcx*8+20]
+  sub edx,eax
+  mov eax,edx
+  sar eax,1F
+  xor edx,eax
+  sub edx,eax
+  cmp edx,5
+  ja AMFE_CompareBad
+  cvtss2si eax,xmm1
+  mov edx,[r9+rcx*8+24]
+  sub edx,eax
+  mov eax,edx
+  sar eax,1F
+  xor edx,eax
+  sub edx,eax
+  cmp edx,5
+  ja AMFE_CompareBad
+  inc r10d
+AMFE_CompareBad:
+  inc ecx
+  jmp AMFE_CompareLoop
+AMFE_CompareFinish:
+  mov [AMFE_Good],r10d
+  mov [AMFE_Total],r11d
+  mov byte ptr [AMFE_Active],0
+  cmp r11d,FA
+  jb AMFE_CallFail
+  imul eax,r10d,64
+  imul edx,r11d,5A
+  cmp eax,edx
+  jb AMFE_CallFail
+AMFE_CallSuccess:
+  mov byte ptr [AMFE_Result],1
+  mov rcx,rbx
+  xor edx,edx
+  mov rax,GameAssembly.dll+946440
+  call rax
+  mov dword ptr [AMFE_State],2
+  jmp AMFE_Done
+AMFE_CallFail:
+  mov byte ptr [AMFE_Result],0
+  mov rcx,rbx
+  xor edx,edx
+  mov rax,GameAssembly.dll+9467A0
+  call rax
+  mov dword ptr [AMFE_State],3
+  jmp AMFE_Done
+
+AMFE_Done:
+  movdqu xmm0,[rsp+20]
+  movdqu xmm1,[rsp+30]
+  movdqu xmm2,[rsp+40]
+  movdqu xmm3,[rsp+50]
+  movdqu xmm4,[rsp+60]
+  movdqu xmm5,[rsp+70]
+  add rsp,80
+  pop r11
+  pop r10
+  pop r9
+  pop r8
+  pop rdi
+  pop rsi
+  pop rbx
+  pop rdx
+  pop rcx
+  pop rax
+  popfq
+  ret
+
+AMFE_Mouse:
+  mov [AMFE_Instance],rcx
+  cmp byte ptr [AMFE_AutoEnabled],1
+  jne AMFE_MouseOriginal
+  cmp qword ptr [rcx+E8],0
+  je AMFE_MouseOriginal
+  cmp byte ptr [AMFE_Active],1
+  je AMFE_MouseFormula
+  sub rsp,48
+  mov [rsp+20],rcx
+  mov rax,AMFE_MouseOriginal
+  call rax
+  mov [rsp+28],rax
+  lea rcx,[rsp+38]
+  mov rax,user32.GetCursorPos
+  call rax
+  test al,al
+  je AMFE_MouseCalReturn
+  mov r11,[rsp+20]
+  mov r10,[rsp+28]
+  mov eax,[rsp+38]
+  sub eax,r10d
+  mov [AMFE_OriginX],eax
+  shr r10,20
+  mov eax,[rsp+3C]
+  sub eax,r10d
+  mov [AMFE_OriginY],eax
+  mov rdx,[r11+F8]
+  test rdx,rdx
+  je AMFE_MouseCalReturn
+  mov eax,[rdx+18]
+  inc eax
+  mov [AMFE_CalibratedAt],eax
+  mov byte ptr [AMFE_Active],1
+AMFE_MouseCalReturn:
+  mov rax,[rsp+28]
+  add rsp,48
+  ret
+AMFE_MouseFormula:
+  mov rax,[rcx+F0]
+  mov rdx,[rcx+F8]
+  test rax,rax
+  je AMFE_MouseOriginal
+  test rdx,rdx
+  je AMFE_MouseOriginal
+  mov r8,[rax+10]
+  mov r9d,[rax+18]
+  test r8,r8
+  je AMFE_MouseOriginal
+  mov edx,[rdx+18]
+  test edx,edx
+  js AMFE_MouseOriginal
+  cmp edx,r9d
+  jae AMFE_MouseOriginal
+  movsxd rdx,edx
+  lea r8,[r8+rdx*8+20]
+  movss xmm0,[r8]
+  movss xmm1,[r8+4]
+  mulss xmm0,[AMFE_Scale]
+  mulss xmm1,[AMFE_Scale]
+  addss xmm0,[AMFE_OffsetX]
+  addss xmm1,[AMFE_OffsetY]
+  cvtss2si eax,xmm0
+  cvtss2si edx,xmm1
+  shl rdx,20
+  or rax,rdx
+  // Physical cursor movement is intentionally external-only. Keeping a
+  // second SetCursorPos here makes the visible cursor flicker to the panel origin.
+  inc qword ptr [AMFE_FollowCount]
+  ret
+AMFE_MouseOriginal:
+  db 41 56 56 57 53
+  jmp GameAssembly.dll+944185
+
+AMFE_State:
+  dd 0
+AMFE_Armed:
+  db 0
+AMFE_AutoEnabled:
+  db 0
+AMFE_Active:
+  db 0
+AMFE_LocalMode:
+  db 0
+AMFE_Result:
+  db FF
+  db 00 00 00
+AMFE_CalibratedAt:
+  dd 0
+AMFE_Good:
+  dd 0
+AMFE_Total:
+  dd 0
+AMFE_OriginX:
+  dd 0
+AMFE_OriginY:
+  dd 0
+AMFE_FollowCount:
+  dq 0
+AMFE_Instance:
+  dq 0
+AMFE_LocalChallenge:
+  dq 0
+AMFE_Challenge:
+  dq 0
+AMFE_List:
+  dq 0
+AMFE_Array:
+  dq 0
+AMFE_ChallengeHandle:
+  dd 0
+AMFE_ListHandle:
+  dd 0
+AMFE_ArrayHandle:
+  dd 0
+AMFE_Stage:
+  dd 0
+AMFE_Scale:
+  dd (float)500.0
+AMFE_OffsetX:
+  dd (float)350.0
+AMFE_OffsetY:
+  dd (float)250.0
+AMFE_FlowStart:
+  db 0
+  db 0 0 0
+AMFE_GuideInstance:
+  dq 0
+
+AMFE_MainStub:
+  sub rsp,28
+  mov rax,AMFE_Main
+  call rax
+  add rsp,28
+  db 41 56 56 57 53 48 81 EC 98 03 00 00
+  jmp GameAssembly.dll+DEDCDC
+
+
+GameAssembly.dll+DEDCD0:
+  jmp AMFE_MainStub
+  nop 7
+GameAssembly.dll+944180:
+  jmp AMFE_Mouse
+
+registersymbol(AMUnifiedFlow)
+registersymbol(AMFE_State)
+registersymbol(AMFE_Armed)
+registersymbol(AMFE_AutoEnabled)
+registersymbol(AMFE_Active)
+registersymbol(AMFE_Result)
+registersymbol(AMFE_CalibratedAt)
+registersymbol(AMFE_Good)
+registersymbol(AMFE_Total)
+registersymbol(AMFE_OriginX)
+registersymbol(AMFE_OriginY)
+registersymbol(AMFE_FollowCount)
+registersymbol(AMFE_Instance)
+registersymbol(AMFE_Stage)
+registersymbol(AMFE_Path)
+registersymbol(AMFE_PathLoaded)
+
+[DISABLE]
+GameAssembly.dll+DEDCD0:
+  db 41 56 56 57 53 48 81 EC 98 03 00 00
+GameAssembly.dll+944180:
+  db 41 56 56 57 53
+unregistersymbol(AMFE_PathLoaded)
+unregistersymbol(AMFE_Path)
+unregistersymbol(AMFE_Stage)
+unregistersymbol(AMFE_Instance)
+unregistersymbol(AMFE_FollowCount)
+unregistersymbol(AMFE_OriginY)
+unregistersymbol(AMFE_OriginX)
+unregistersymbol(AMFE_Total)
+unregistersymbol(AMFE_Good)
+unregistersymbol(AMFE_CalibratedAt)
+unregistersymbol(AMFE_Result)
+unregistersymbol(AMFE_Active)
+unregistersymbol(AMFE_AutoEnabled)
+unregistersymbol(AMFE_Armed)
+unregistersymbol(AMFE_State)
+unregistersymbol(AMUnifiedFlow)
+dealloc(AMUnifiedFlow)
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>42001</ID>
+          <Description>状态：0空闲 / 10原生Guide / 1轨迹中 / 2成功 / 3失败 / 5已有窗口</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>AMUnifiedFlow+4000</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>42002</ID>
+          <Description>开始/重新运行：确认轨迹已加载后，把该值改为1</Description>
+          <VariableType>Byte</VariableType>
+          <Address>AMUnifiedFlow+406C</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>42003</ID>
+          <Description>自动F8：1开启 / 0关闭（安全默认0）</Description>
+          <VariableType>Byte</VariableType>
+          <Address>AMUnifiedFlow+4005</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>42004</ID>
+          <Description>自动采样已开始：1是 / 0否</Description>
+          <VariableType>Byte</VariableType>
+          <Address>AMUnifiedFlow+4006</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>42005</ID>
+          <Description>结果：255等待 / 1成功 / 0失败</Description>
+          <VariableType>Byte</VariableType>
+          <Address>AMUnifiedFlow+4008</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>42006</ID>
+          <Description>自动接管起始F8下标</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>AMUnifiedFlow+400C</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>42007</ID>
+          <Description>轨迹命中点数</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>AMUnifiedFlow+4010</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>42008</ID>
+          <Description>轨迹比较总点数</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>AMUnifiedFlow+4014</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>42009</ID>
+          <Description>已自动返回的F8点数</Description>
+          <VariableType>8 Bytes</VariableType>
+          <Address>AMUnifiedFlow+4020</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>42010</ID>
+          <Description>当前NonFinite实例</Description>
+          <VariableType>8 Bytes</VariableType>
+          <Address>AMUnifiedFlow+4028</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>42011</ID>
+          <Description>内部阶段</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>AMUnifiedFlow+405C</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>42012</ID>
+          <Description>轨迹数据已加载：1可开始 / 0等待</Description>
+          <VariableType>Byte</VariableType>
+          <Address>AMUnifiedFlow+4078</Address>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols />
+  <LuaScript>-- Preserve MCP control when this CT is opened.
+if not StartMCPBridge then
+  local p=[[C:/CE-MCP/ce_mcp_bridge.customce-safe.lua]]
+  local f=io.open(p,'rb')
+  if f then
+    local code=f:read('*a'); f:close()
+    local fn=loadstring(code)
+    if not fn and load then fn=load(code,'ce_mcp_bridge.customce-safe','t') end
+    if fn then pcall(fn) end
+  end
+end
+pcall(function()
+  local pid=getProcessIDFromProcessName('Maplestory_Classic.exe')
+  if pid and pid~=0 then openProcess(pid) end
+end)</LuaScript>
+</CheatTable>

@@ -1,0 +1,80 @@
+<html style="margin:0;padding:0;">
+<div style="background-color:transparent;box-sizing:border-box;">
+<div style="font-family:'Roboto','PingFang SC','Segoe UI',Arial,sans-serif;max-width:880px;margin:0 auto;padding:12px 8px;box-sizing:border-box;color:#1A1B1C;">
+
+  <div style="font-size:16px;font-weight:600;color:#1A1B1C;margin-bottom:4px;">内存读取「卡 2 分钟 + 全部窗口一起卡」真实根因</div>
+  <div style="font-size:12px;color:#6B7280;margin-bottom:16px;">修正版：排除特征码扫描（仅备注）· 依据 新_虚拟机读写.ec（DMA/PCILeech 共享通道）与调用链 · 示意</div>
+
+  <!-- 结构 -->
+  <div style="font-size:12px;color:#4A4F5A;font-weight:600;margin-bottom:6px;">结构：N 个窗口共用唯一一条 DMA 内存通道</div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;align-items:center;">
+    <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:8px 10px;flex:1 1 130px;min-width:0;">
+      <div style="font-size:12px;font-weight:600;">窗口 1</div>
+      <div style="font-size:11px;color:#6B7280;margin-top:2px;">工作线程 + 掉线线程</div>
+    </div>
+    <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:8px 10px;flex:1 1 130px;min-width:0;">
+      <div style="font-size:12px;font-weight:600;">窗口 2</div>
+      <div style="font-size:11px;color:#6B7280;margin-top:2px;">工作线程 + 掉线线程</div>
+    </div>
+    <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:8px 10px;flex:1 1 130px;min-width:0;">
+      <div style="font-size:12px;font-weight:600;">… 窗口 N</div>
+      <div style="font-size:11px;color:#6B7280;margin-top:2px;">工作线程 + 掉线线程</div>
+    </div>
+    <div style="align-self:center;color:#9AA0AB;font-size:14px;">⇅</div>
+    <div style="background:linear-gradient(135deg, rgba(234,102,104,0.12), rgba(234,102,104,0.24));border:1px solid rgba(234,102,104,0.4);border-radius:10px;padding:8px 10px;flex:1 1 200px;min-width:0;">
+      <div style="font-size:12px;font-weight:600;color:#C2383B;">唯一共享 DMA 通道</div>
+      <div style="font-size:11px;color:#6B7280;margin-top:2px;">新_虚拟机读写.ec（PCILeech/winpmem）· 全局 VMM 句柄 · 物理串行</div>
+    </div>
+  </div>
+
+  <!-- 卡住机制 -->
+  <div style="font-size:12px;color:#4A4F5A;font-weight:600;margin-bottom:6px;">一个窗口「读卡」→ 全窗口连锁卡住 的完整链条</div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;align-items:stretch;">
+    <div style="flex:1 1 200px;min-width:0;background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:8px 10px;box-sizing:border-box;">
+      <div style="font-size:12px;font-weight:600;color:#C2383B;">① 某个窗口读到异常状态</div>
+      <div style="font-size:11px;color:#6B7280;margin-top:3px;">游戏在加载 / 掉线 / 对象未创建 / 进程重启中 → 首层指针解引用返回 0 或无效地址。</div>
+    </div>
+    <div style="align-self:center;color:#9AA0AB;font-size:14px;">→</div>
+    <div style="flex:1 1 200px;min-width:0;background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:8px 10px;box-sizing:border-box;">
+      <div style="font-size:12px;font-weight:600;color:#C2383B;">② 「强读强写」阻塞/重试</div>
+      <div style="font-size:11px;color:#6B7280;margin-top:3px;">强读失败后内部重试、等待，同步占用 DMA 通道不放，可能持续数秒。</div>
+    </div>
+    <div style="align-self:center;color:#9AA0AB;font-size:14px;">→</div>
+    <div style="flex:1 1 200px;min-width:0;background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:8px 10px;box-sizing:border-box;">
+      <div style="font-size:12px;font-weight:600;color:#C2383B;">③ 其他窗口读数全部排队</div>
+      <div style="font-size:11px;color:#6B7280;margin-top:3px;">其余 N-1 个窗口的 HP/坐标读取在通道/句柄上排队 → 全部停住（=你看到的「其他窗口都卡」）。</div>
+    </div>
+  </div>
+
+  <!-- 雪崩 -->
+  <div style="background:linear-gradient(135deg, rgba(250,173,20,0.10), rgba(250,173,20,0.22));border-radius:12px;padding:10px 12px;margin-bottom:12px;border:1px solid rgba(250,173,20,0.35);">
+    <div style="font-size:12px;color:#B87A00;font-weight:600;margin-bottom:4px;">④ 滚雪球到 2 分钟：掉线线程「数据异常 → 重新定位」</div>
+    <div style="font-size:12px;color:#4A4F5A;">读数一卡 → 掉线线程判「数据异常」（源码 20102）→ 触发重新定位 → 重新取进程/模块 + 整条指针链重读（又是大批 DMA 读）→ 通道更堵 → 更多窗口异常 → 更多重定位。全链路没有超时保护，一直拖到 2 分钟甚至更久。</div>
+  </div>
+
+  <!-- 3个放大因素 -->
+  <div style="font-size:12px;color:#4A4F5A;font-weight:600;margin-bottom:6px;">三个放大因素</div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
+    <div style="flex:1 1 240px;min-width:0;background:#fff;border:1px solid rgba(0,0,0,0.08);border-left:3px solid #EA6668;border-radius:8px;padding:8px 10px;box-sizing:border-box;">
+      <div style="font-size:12px;font-weight:600;">A. 强读=失败重试无超时</div>
+      <div style="font-size:11px;color:#6B7280;margin-top:3px;">正常轮询也用强读，掉线/加载时每字段×每层×重试次数放大，且阻塞共享通道。</div>
+    </div>
+    <div style="flex:1 1 240px;min-width:0;background:#fff;border:1px solid rgba(0,0,0,0.08);border-left:3px solid #FAAD14;border-radius:8px;padding:8px 10px;box-sizing:border-box;">
+      <div style="font-size:12px;font-weight:600;">B. 通道无全局串行/限流</div>
+      <div style="font-size:11px;color:#6B7280;margin-top:3px;">N 个窗口并发轰同一条 DMA 通道，一个卡全部排队；无全局读锁隔离。</div>
+    </div>
+    <div style="flex:1 1 240px;min-width:0;background:#fff;border:1px solid rgba(0,0,0,0.08);border-left:3px solid #FAAD14;border-radius:8px;padding:8px 10px;box-sizing:border-box;">
+      <div style="font-size:12px;font-weight:600;">C. CPU 满载放大</div>
+      <div style="font-size:11px;color:#6B7280;margin-top:3px;">截图 CPU 已 93%；DMA 地址转换+高频轮询吃满 CPU，线程调度变慢，读更易超时。</div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;font-size:11px;color:#6B7280;">
+    <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#C2383B;margin-right:4px;"></span>阻塞/卡顿点</span>
+    <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#FAAD14;margin-right:4px;"></span>放大因素</span>
+    <span style="margin-left:auto;">口径：源码 20102 数据异常→重新定位；模块共享 VMM 句柄/散读ID</span>
+  </div>
+
+</div>
+</div>
+</html>
