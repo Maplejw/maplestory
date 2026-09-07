@@ -36,6 +36,7 @@
     .成员 VMMDLL_ProcessGetModuleBaseU, 长整数型, , , 
     .成员 VMMDLL_Scatter_Initialize, 长整数型, , , 
     .成员 VMMDLL_Scatter_Prepare, 长整数型, , , 
+    .成员 VMMDLL_Scatter_PrepareEx, 长整数型, , , 
     .成员 VMMDLL_Scatter_ExecuteRead, 长整数型, , , 
     .成员 VMMDLL_Scatter_CloseHandle, 长整数型, , , 
     .成员 VMMDLL_Scatter_Clear, 长整数型, , , 
@@ -44,7 +45,6 @@
     .成员 VMMDLL_ProcessGetInformation, 长整数型, , , 
     .成员 VMMDLL_ConfigSet, 长整数型, , , 
     .成员 VMMDLL_MemReadEx, 长整数型, , , 
-    .成员 VMMDLL_ProcessGetModuleBaseU, 长整数型, , , 
     .成员 VMMDLL_MemWrite, 长整数型, , , 
 
 
