@@ -1,0 +1,68 @@
+﻿.版本 2
+
+.DLL命令 MoveFileExA, , "", "MoveFileExA", , 
+    .参数 CCAV, 文本型, , Filename  路径
+    .参数 null, 整数型, , 默认 0
+    .参数 Sky_angel, 整数型, , 1:替换文件 4重启手删除文件 BOOT参数
+
+.DLL命令 CreateWaitableTimerA, 整数型, "kernel32.dll", "CreateWaitableTimerA", , 程序延时
+    .参数 lpTimerAttributes, 整数型, , 
+    .参数 bManualReset, 逻辑型, , 
+    .参数 lpTimerName, 整数型, , 
+
+.DLL命令 SetWaitableTimer, 整数型, "kernel32.dll", "SetWaitableTimer", , 
+    .参数 hTimer, 整数型, , 
+    .参数 pDueTime, 程序延时, , 
+    .参数 lPeriod, 整数型, , 
+    .参数 pfnCompletionRoutine, 整数型, , 
+    .参数 lpArgToCompletionRoutine, 整数型, , 
+    .参数 fResume, 逻辑型, , 
+
+.DLL命令 MsgWaitForMultipleObjects, 整数型, "User32.dll", "MsgWaitForMultipleObjects", , 
+    .参数 nCount, 整数型, , 
+    .参数 pHandles, 整数型, 传址, 
+    .参数 fWaitAll, 逻辑型, , 
+    .参数 dwMilliseconds, 整数型, , 
+    .参数 dwWakeMask, 整数型, , 
+
+.DLL命令 CloseHandle, 逻辑型, "kernel32.dll", "CloseHandle", , 关闭一个内核对象。其中包括文件、文件映射、进程、线程、安全和同步对象等。涉及文件处理时，这个函数通常与vb的close命令相似。应尽可能的使用close，因为它支持vb的差错控制。注意这个函数使用的文件句柄与vb的文件编号是完全不同的  非零表示成功，零表示失败。会设置GetLastError
+    .参数 对象句柄, 整数型, , 欲关闭的一个对象的句柄;
+
+.DLL命令 CreateProcessA, 逻辑型, "kernel32.dll", "CreateProcessA", , 
+    .参数 lpApplicationName, 整数型, , 
+    .参数 lpCommandLine, 文本型, , 
+    .参数 lpProcessAttributes, 整数型, , 
+    .参数 lpThreadAttributes, 整数型, , 
+    .参数 bInheritHandles, 逻辑型, , 
+    .参数 dwCreationFlags, 整数型, , 
+    .参数 lpEnvironment, 整数型, , 
+    .参数 lpCurrentDriectory, 整数型, , 
+    .参数 lpStartupInfo, STARTUPINFO, 传址, 
+    .参数 lpProcessInformation, 精易_进程结构, 传址, 
+
+.DLL命令 WaitForSingleObject, 整数型, "kernel32.dll", "WaitForSingleObject", , 线程等待
+    .参数 hHandle, 整数型, , 线程句柄
+    .参数 dwMilliseconds, 整数型, , 值为:4294967295
+
+.DLL命令 CreateMutexA, 整数型, "kernel32.dll", "CreateMutexA", , 创建进程内互斥体
+    .参数 lpMutexAttributes, 整数型, , 
+    .参数 bInitialOwner, 逻辑型, , 
+    .参数 lpName, 整数型, , 
+
+.DLL命令 ReleaseMutex, 逻辑型, "kernel32.dll", "ReleaseMutex", , 释放互斥体
+    .参数 hMutex, 整数型, , 
+
+.DLL命令 TerminateProcess, 逻辑型, "kernel32.dll", "TerminateProcess", , 终止本模块创建的桥接进程
+    .参数 hProcess, 整数型, , 
+    .参数 uExitCode, 整数型, , 
+
+.DLL命令 WaitForInputIdle, 整数型, "user32.dll", "WaitForInputIdle", , 
+    .参数 hProcess, 整数型, , 0
+    .参数 dwMilliseconds, 整数型, , 0
+
+.DLL命令 GetCurrentProcessId, 整数型, "kernel32.dll", "GetCurrentProcessId", , 
+
+.DLL命令 GetCurrentThreadId, 整数型, "kernel32.dll", "GetCurrentThreadId", , 
+
+.DLL命令 GetTickCount64, 长整数型, "kernel32", "GetTickCount64", , 获取自windows启动以来经历的时间长度（毫秒）
+

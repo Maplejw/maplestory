@@ -1,0 +1,93 @@
+﻿.程序集 ITcpClient, IClient,公开 , 
+
+.子程序 _初始化, , , 当基于本类的对象被创建后，此方法会被自动调用
+
+
+
+.子程序 _销毁, , , 当基于本类的对象被销毁前，此方法会被自动调用
+
+
+
+.子程序 创建, 整数型, 公开, 创建 HP_TcpClient 或 HP_SSLClient 对象，并创建 TcpClientListener 对象
+.参数 SSL, 逻辑型, , 是否是SSL组件
+.局部变量 p_hListener, 整数型, , , 
+
+置入代码 ({139, 69, 8, 139, 0, 139, 80, 4, 137, 85, 252})
+.如果真 (等于 (p_hListener, 0))
+    赋值 (p_hListener, Create_HP_TcpClientListener ())
+    .如果真 (等于 (p_hListener, 0))
+        返回 (0)
+    .如果真结束
+    置入代码 ({139, 69, 8, 139, 0, 139, 85, 252, 137, 80, 4})
+.如果真结束
+.判断开始 (SSL)
+    返回 (Create_HP_SSLClient (p_hListener))
+.默认
+    返回 (Create_HP_TcpClient (p_hListener))
+.判断结束
+
+
+.子程序 销毁, , 公开, 销毁 HP_TcpClient 或 HP_SSLClient 对象
+.参数 通信句柄, 整数型, , 
+.参数 SSL, 逻辑型, , 是否是SSL组件 
+
+.如果真 (不等于 (通信句柄, 0))
+    .判断开始 (SSL)
+        Destroy_HP_SSLClient (通信句柄)
+    .默认
+        Destroy_HP_TcpClient (通信句柄)
+    .判断结束
+    
+.如果真结束
+
+
+.子程序 销毁事件, , 公开, 销毁 TcpClientListener 对象
+.局部变量 p_hListener, 整数型, , , 
+
+置入代码 ({139, 69, 8, 139, 0, 139, 80, 4, 137, 85, 252})
+.如果真 (不等于 (p_hListener, 0))
+    Destroy_HP_TcpClientListener (p_hListener)
+.如果真结束
+
+
+.子程序 发送小文件, 逻辑型, 公开, 名称：发送小文件 描述：向服务端发送 4096 KB 以下的小文件,TRUE-- 成功,FALSE-- 失败，可通过 SYS_GetLastError() 获取 Windows 错误代码,/
+.参数 通信句柄, 整数型, , 
+.参数 文件路径, 文本型, , 文件路径 
+.参数 头部附加数据, WSABUF, , 头部附加数据
+.参数 尾部附加数据, WSABUF, , 尾部附加数据
+
+返回 (HP_TcpClient_SendSmallFile (通信句柄, 文件路径, 头部附加数据, 尾部附加数据))
+
+.子程序 置通信数据缓冲区大小, , 公开, 设置通信数据缓冲区大小（根据平均通信数据包大小调整设置，通常设置为：(N * 1024) - sizeof(TBufferObj)）
+.参数 通信句柄, 整数型, , 
+.参数 缓冲区大小, 整数型, , 
+
+HP_TcpClient_SetSocketBufferSize (通信句柄, 缓冲区大小)
+
+.子程序 置心跳包间隔, , 公开, 设置正常心跳包间隔（毫秒，0 则不发送心跳包，默认：30 * 1000）
+.参数 通信句柄, 整数型, , 
+.参数 间隔, 整数型, , 
+
+HP_TcpClient_SetKeepAliveTime (通信句柄, 间隔)
+
+.子程序 置异常心跳包间隔, , 公开, 设置异常心跳包间隔（毫秒，0 不发送心跳包，，默认：10 * 1000，如果超过若干次 [默认：WinXP 5 次, Win7 10 次] 检测不到心跳确认包则认为已断线）
+.参数 通信句柄, 整数型, , 
+.参数 间隔, 整数型, , 
+
+HP_TcpClient_SetKeepAliveInterval (通信句柄, 间隔)
+
+.子程序 取通信数据缓冲区大小, 整数型, 公开, 获取通信数据缓冲区大小
+.参数 通信句柄, 整数型, , 
+
+返回 (HP_TcpClient_GetSocketBufferSize (通信句柄))
+
+.子程序 取正常心跳包间隔, 整数型, 公开, 获取正常心跳包间隔
+.参数 通信句柄, 整数型, , 
+
+返回 (HP_TcpClient_GetKeepAliveTime (通信句柄))
+
+.子程序 取异常心跳包间隔, 整数型, 公开, 获取异常心跳包间隔
+.参数 通信句柄, 整数型, , 
+
+返回 (HP_TcpClient_GetKeepAliveInterval (通信句柄))
+
