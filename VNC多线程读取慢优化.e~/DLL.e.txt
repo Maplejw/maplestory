@@ -342,7 +342,7 @@
     .参数 字节集指针, 整数型, , 
     .参数 数据长度, 整数型, , 
 
-.DLL命令 CoInitializeEx, , "ole32.dll", "CoInitializeEx", , 
+.DLL命令 CoInitializeEx, 整数型, "ole32.dll", "CoInitializeEx", , 
     .参数 pvReserved, 整数型, , 
     .参数 param, 整数型, , 
 
@@ -383,11 +383,38 @@
     .参数 name, 字节集, 传址, 
     .参数 namelen, 整数型, , 
 
+.DLL命令 ioctlsocket, 整数型, "ws2_32.dll", "ioctlsocket", ,
+    .参数 s, 整数型, ,
+    .参数 cmd, 整数型, ,
+    .参数 argp, 整数型, 传址,
+
+.DLL命令 select_, 整数型, "ws2_32.dll", "select", ,
+    .参数 nfds, 整数型, ,
+    .参数 readfds, 整数型, ,
+    .参数 writefds, 整数型, ,
+    .参数 exceptfds, 整数型, ,
+    .参数 timeout, 整数型, ,
+
+.DLL命令 getsockopt, 整数型, "ws2_32.dll", "getsockopt", ,
+    .参数 s, 整数型, ,
+    .参数 level, 整数型, ,
+    .参数 optname, 整数型, ,
+    .参数 optval, 整数型, 传址,
+    .参数 optlen, 整数型, 传址,
+
+.DLL命令 WSAGetLastError, 整数型, "ws2_32.dll", "WSAGetLastError", ,
+
 .DLL命令 send, 整数型, "ws2_32.dll", "send", , 
     .参数 s, 整数型, , 
     .参数 buf, 字节集, 传址, 
     .参数 len, 整数型, , 
     .参数 flags, 整数型, , 
+
+.DLL命令 send_指针, 整数型, "ws2_32.dll", "send", , 发送字节集的指定偏移，避免每次分段发送都复制剩余大包
+    .参数 s, 整数型, ,
+    .参数 buf, 整数型, ,
+    .参数 len, 整数型, ,
+    .参数 flags, 整数型, ,
 
 .DLL命令 recv, 整数型, "ws2_32.dll", "recv", , 
     .参数 s, 整数型, , 
@@ -501,4 +528,8 @@
     .参数 参数, 文本型, , 
     .参数 目录, 文本型, , 
     .参数 显示方式, 整数型, , 
+
+.DLL命令 WaitForSingleObject, 整数型, "kernel32.dll", "WaitForSingleObject", , 返回0表示对象已结束，258表示超时
+    .参数 hHandle, 整数型, , 
+    .参数 dwMilliseconds, 整数型, , 
 
